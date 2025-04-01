@@ -28,9 +28,12 @@ exports.loginUser = async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
-        
+
+        // Set session
         req.session.user = { id: user.id, name: user.name, email: user.email };
-        res.json({ message: 'Login successful', user: req.session.user });
+        
+        // Redirect to the home page or wherever you need
+        res.redirect(302, '/home');  // Corrected redirect
     } catch (err) {
         res.status(500).json({ error: 'Error logging in', details: err.message });
     }
@@ -38,6 +41,7 @@ exports.loginUser = async (req, res) => {
 
 // Logout
 exports.logoutUser = (req, res) => {
-    req.session.destroy();
-    res.json({ message: 'Logged out successfully' });
+    req.session.destroy(() => {
+        res.redirect('/auth/login');  // Redirect to login after logout
+    });
 };
