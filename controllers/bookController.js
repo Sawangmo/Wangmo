@@ -7,7 +7,7 @@ const getBooks = async (req, res) => {
       const books = await db.any("SELECT * FROM books");
      
       // Pass user from session to the view
-      const user = req.session.user;
+      const user = req.session.user; 
 
 
       // Render books page with books and user data

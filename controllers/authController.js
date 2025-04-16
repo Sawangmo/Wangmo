@@ -18,24 +18,30 @@ exports.registerUser = async (req, res) => {
 // Login
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
+    const adminEmail = process.env.ADMIN_EMAIL;
+
     try {
         const user = await db.oneOrNone('SELECT * FROM users WHERE email = $1', [email]);
+
         if (!user) {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
-        
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
 
-        // Set session
         req.session.user = { id: user.id, name: user.name, email: user.email };
-        
-        // Redirect to the home page or wherever you need
-        res.redirect(302, '/home');  // Corrected redirect
+
+        // Redirect based on role
+        if (user.email === adminEmail) {
+            return res.redirect('/admin/dashboard');
+        }
+
+        res.redirect('/home');
     } catch (err) {
-        res.status(500).json({ error: 'Error logging in', details: err.message });
+        res.status(500).json({ error: 'Error logging in' });
     }
 };
 
@@ -45,3 +51,4 @@ exports.logoutUser = (req, res) => {
         res.redirect('/auth/login');  // Redirect to login after logout
     });
 };
+

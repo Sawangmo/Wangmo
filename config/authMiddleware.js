@@ -1,6 +1,8 @@
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
-    if (req.session.user && req.session.cookie.expires > Date.now()) {
+    const sessionExpires = req.session?.cookie?.expires;
+
+    if (req.session.user && sessionExpires && new Date(sessionExpires).getTime() > Date.now()) {
         return next(); // If session is valid, proceed to the next middleware/route handler
     }
 
@@ -13,3 +15,4 @@ function isAuthenticated(req, res, next) {
 }
 
 module.exports = { isAuthenticated };
+
